@@ -26,8 +26,10 @@ var Tetris = function() {
 	this.layout = (function() {
 		this.gridView = (function() {
 			this.render = function(block) {
-				var cell = document.getElementById("r" + block.row + "c" + block.col);
-				cell.innerHTML = "X";
+				var cell = $("#r" + block.row + "c" + block.col);
+				cell.css("background-color", "red");
+
+				
 			}
 			return {render: this.render};
 		})()
