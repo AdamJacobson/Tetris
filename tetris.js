@@ -1,18 +1,8 @@
-class Square extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {color: this.props.color};
-	}
-
-	render() {
-		var style = {
-			"backgroundColor": this.state.color
-		}
-		
-		return (
-			<td className="gridSquare" style={style}></td>
-		)
-	}
+// Stateless functional component
+const Square = ({color}) => {
+	return (
+		<td className="gridSquare" style={{backgroundColor: color}}></td>
+	)
 }
 
 class Row extends React.Component {
