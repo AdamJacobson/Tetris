@@ -39,8 +39,34 @@ var makeGrid = function(width, height) {
 // This method should perform all logic related to the existing board
 // and the current tetramino which is is being controlled
 var calculateBoard = function(grid, tetramino) {
-	// Assuming no conflicts of the current board and the current tetramino, place the tetramino into the board
-	tetramino.type.blocks.map(block => grid[block.row + tetramino.origin.row][block.col + tetramino.origin.col] = tetramino.type.color);
+	var legality = moveLegality(grid, tetramino)
+	
+	if (legality == 'legal') {
+		console.log("Move is legal");
+		tetramino.type.blocks.map(block => grid[block.row + tetramino.origin.row][block.col + tetramino.origin.col] = tetramino.type.color);
+	} else if (legality == 'not_legal_continue') {
+		console.log("Move is not legal but continue to allow control");
+	} else if (legality == 'not_legal_end') {
+		console.log("Move is not legal and control must end");
+	}
+}
+
+// Return true or false if the tetramino can be applied to the grid
+// Need to consider under what condition we should take away control of the tetramino vs just preventing the move
+// If hitting a wall, not legal but continue. If hitting bottom, not legal and end.
+// legal, end, continue
+var moveLegality = function(grid, tetramino) {
+	var legality = 'legal';
+	
+	tetramino.type.blocks.map(block => {
+		if (block.row + tetramino.origin.row >= grid.length) {
+			legality = 'not_legal_end'; // Reached bottom of grid
+		} else if (block.col + tetramino.origin.col >= grid[0].length) {
+			legality = 'not_legal_continue'; // Hit side of grid
+		}
+	});
+	
+	return legality;
 }
 
 var getRandomTetramino = function() {
