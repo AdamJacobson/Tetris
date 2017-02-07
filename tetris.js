@@ -1,8 +1,6 @@
 // Stateless functional component
 const Square = ({color}) => {
-	return (
-		<td className="gridSquare" style={{backgroundColor: color}}></td>
-	)
+	return <td className="gridSquare" style={{backgroundColor: color}}></td>
 }
 
 class Board extends React.Component {
@@ -36,19 +34,30 @@ var makeGrid = function(width, height) {
 	return grid;
 }
 
-// This method should perform all logic related to the existing board
-// and the current tetramino which is is being controlled
+const legal = 'legal';
+const not_legal_continue = 'not_legal_continue';
+const not_legal_end = 'not_legal_end';
+
+var clone = function(obj) {
+	return JSON.parse(JSON.stringify(obj));
+}
+
+// Return a new grid which will be rendered
+// Do not modify the existing grid
 var calculateBoard = function(grid, tetramino) {
+	var newGrid = clone(grid);
 	var legality = moveLegality(grid, tetramino)
 	
-	if (legality == 'legal') {
-		console.log("Move is legal");
-		tetramino.type.blocks.map(block => grid[block.row + tetramino.origin.row][block.col + tetramino.origin.col] = tetramino.type.color);
-	} else if (legality == 'not_legal_continue') {
-		console.log("Move is not legal but continue to allow control");
-	} else if (legality == 'not_legal_end') {
-		console.log("Move is not legal and control must end");
+	// console.log("Move legality: ", legality);
+	if (legality == legal) {
+		tetramino.type.blocks.map(block => newGrid[block.row + tetramino.origin.row][block.col + tetramino.origin.col] = tetramino.type.color);
+	} else if (legality == not_legal_continue) {
+		
+	} else if (legality == not_legal_end) {
+		
 	}
+	
+	return newGrid;
 }
 
 // Return true or false if the tetramino can be applied to the grid
@@ -56,13 +65,13 @@ var calculateBoard = function(grid, tetramino) {
 // If hitting a wall, not legal but continue. If hitting bottom, not legal and end.
 // legal, end, continue
 var moveLegality = function(grid, tetramino) {
-	var legality = 'legal';
+	var legality = legal;
 	
 	tetramino.type.blocks.map(block => {
-		if (block.row + tetramino.origin.row >= grid.length) {
-			legality = 'not_legal_end'; // Reached bottom of grid
-		} else if (block.col + tetramino.origin.col >= grid[0].length) {
-			legality = 'not_legal_continue'; // Hit side of grid
+		if (block.row + tetramino.origin.row >= grid.length) { // Reached bottom of grid
+			legality = not_legal_end;
+		} else if (block.col + tetramino.origin.col >= grid[0].length || block.col + tetramino.origin.col < 0) { // Passed side of grid
+			legality = not_legal_continue;
 		}
 	});
 	
@@ -73,31 +82,14 @@ var getRandomTetramino = function() {
 	return tetraminos[Math.floor(Math.random() * tetraminos.length)];
 }
 
-var fall = function(tetramino) {
-	tetramino.origin.row++;
-}
-
-var tetra = {
-	type: getRandomTetramino(),
-	origin: {row: 3, col: 3},
-}
-
-var renderGrid = function() {
-	var grid = makeGrid(10, 20);
-	
-	calculateBoard(grid, tetra);
-
-	ReactDOM.render(
-		<Board grid={grid} />,
-		document.getElementById("board")
-	)
-	
-	fall(tetra);
-}
-
 function Game() {
-	var gameInterval;
+	var fallInterval;
 	var started = false;
+	var activeTetramino = {
+		type: getRandomTetramino(),
+		origin: {row: 3, col: 3},
+	}
+	var gameGrid = makeGrid(10, 20);
 	
 	this.stopStart = function() {
 		if (started) {
@@ -108,17 +100,83 @@ function Game() {
 	};
 	
 	var stop = function() {
-		clearInterval(gameInterval);
+		clearInterval(fallInterval);
 		started = false;
 	};
 	
 	var start = function() {
-		gameInterval = setInterval(function(){renderGrid();}, 1000)
+		fallInterval = setInterval(function(){
+			fall();
+			}, 1000)
 		started = true;
 	};
 	
+	var fall = function() {
+		move('D');
+		render();
+	};
+	
+	// Down is same as fall() but resets the fall timer
+	this.down = function() {
+		fall();
+		clearInterval(fallInterval);
+		fallInterval = setInterval(function(){
+			fall();
+		}, 1000)
+	}
+	
+	this.left = function() {
+		move('L');
+		render();
+	}
+
+	this.right = function() {
+		move('R');
+		render();
+	}
+	
+	// Check to see if the move is legal and modify the active tetramino accordingly
+	var move = function(direction) {
+		var futureTetramino = clone(activeTetramino);
+		
+		if (direction == 'R') {
+			futureTetramino.origin.col++;
+		} else if (direction == 'L') {
+			futureTetramino.origin.col--;
+		} else if (direction == 'D') {
+			futureTetramino.origin.row++;
+		}
+		
+		var legality = moveLegality(gameGrid, futureTetramino);
+		console.log("Moving active Tetramino " + direction + " legality is " + legality);
+		
+		if (legality == legal) {
+			activeTetramino.origin = futureTetramino.origin;
+		} else if (legality == not_legal_continue) {
+			// Do nothing
+		} else if (legality == not_legal_end) {
+			// Need to add tetramino to the grid then create a new one
+			activeTetramino = {
+				type: getRandomTetramino(),
+				origin: {row: 3, col: 3},
+			}
+		}
+	}
+	
+	var render = function() {
+		var newGrid = calculateBoard(gameGrid, activeTetramino);
+		
+		ReactDOM.render(
+			<Board grid={newGrid} />,
+			document.getElementById("board")
+		)
+	}
+	
 	return {
-		stopStart: this.stopStart
+		stopStart: this.stopStart,
+		left: this.left,
+		right: this.right,
+		down: this.down
 	};
 }
 
