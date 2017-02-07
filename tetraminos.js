@@ -1,8 +1,7 @@
-const O = "yellow", L = "orange", J = "blue", T = "purple", I = "cyan", S = "lime", Z = "red";
-const colors = [O, L, T, J, I, S, Z];
+const color_O = "yellow", color_L = "orange", color_J = "blue", color_T = "purple", color_I = "cyan", color_S = "lime", color_Z = "red";
 
 const tetramino_I = {
-	color: "cyan",
+	color: color_I,
 	blocks: [
 		{row: -1, col: 0},
 		{row: 0, col: 0},
@@ -12,7 +11,7 @@ const tetramino_I = {
 }
 
 const tetramino_L = {
-	color: "orange",
+	color: color_L,
 	blocks: [
 		{row: -1, col: 0},
 		{row: 0, col: 0},
@@ -22,7 +21,7 @@ const tetramino_L = {
 }
 
 const tetramino_J = {
-	color: "blue",
+	color: color_J,
 	blocks: [
 		{row: -1, col: 0},
 		{row: 0, col: 0},
@@ -32,7 +31,7 @@ const tetramino_J = {
 }
 
 const tetramino_O = {
-	color: "yellow",
+	color: color_O,
 	blocks: [
 		{row: 0, col: 0},
 		{row: 0, col: 1},
@@ -42,7 +41,7 @@ const tetramino_O = {
 }
 
 const tetramino_S = {
-	color: "lime",
+	color: color_S,
 	blocks: [
 		{row: 0, col: 0},
 		{row: 0, col: -1},
@@ -52,7 +51,7 @@ const tetramino_S = {
 }
 
 const tetramino_T = {
-	color: "purple",
+	color: color_T,
 	blocks: [
 		{row: 0, col: 0},
 		{row: -1, col: 0},
@@ -62,7 +61,7 @@ const tetramino_T = {
 }
 
 const tetramino_Z = {
-	color: "red",
+	color: color_Z,
 	blocks: [
 		{row: 0, col: 0},
 		{row: -1, col: 0},
