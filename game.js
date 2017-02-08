@@ -20,7 +20,7 @@ var clone = function(obj) {
 function Game() {
 	var fallTime = 1000;
 	var fallInterval;
-	var started = false;
+	var playing = false;
 	var activeTetramino;
 	
 	var gameGrid = makeGrid(10, 20);
@@ -39,38 +39,40 @@ function Game() {
 	
 	spawnTetramino();
 	
-	this.stopStart = function() {
-		if (started) {
-			stop();
+	this.playPause = function() {
+		if (playing) {
+			pause();
 		} else {
-			start();
+			play();
 		}
-	};
+	}
 	
-	var stop = function() {
+	var pause = function() {
 		clearInterval(fallInterval);
-		started = false;
-	};
+		playing = false;
+	}
 	
-	var start = function() {
+	var play = function() {
 		fallInterval = setInterval(function(){
 			fall();
 			}, fallTime)
-		started = true;
-	};
+		playing = true;
+	}
 	
 	// Down is same as fall() but resets the fall timer
 	this.down = function() {
-		fall();
-		clearInterval(fallInterval);
-		fallInterval = setInterval(function(){
+		if (playing) {
 			fall();
-		}, fallTime)
+			clearInterval(fallInterval);
+			fallInterval = setInterval(function(){
+				fall();
+			}, fallTime)
+		}
 	}
 	
 	var fall = function() {
 		move('D');
-	};
+	}
 	
 	this.left = function() {
 		move('L');
@@ -82,33 +84,33 @@ function Game() {
 	
 	// Check to see if the move is legal and modify the active tetramino accordingly
 	var move = function(direction) {
-		var futureTetramino = clone(activeTetramino);
-		
-		if (direction == 'R') {
-			futureTetramino.origin.col++;
-		} else if (direction == 'L') {
-			futureTetramino.origin.col--;
-		} else if (direction == 'D') {
-			futureTetramino.origin.row++;
-		}
-		
-		var legality = moveLegality(futureTetramino);
-		console.log("Moving active Tetramino " + direction + " legality is " + legality);
-		
-		if (legality == legal) {
-			// Apply the move
-			activeTetramino.origin = futureTetramino.origin;
-		} else if (legality == not_legal_continue) {
-			// Do nothing
-		} else if (legality == not_legal_end) {
-			// Need to add current tetramino to the grid then create a new one
+		if (playing) {
+			var futureTetramino = clone(activeTetramino);
 			
-			applyTetraminoToBoard();
+			if (direction == 'R') {
+				futureTetramino.origin.col++;
+			} else if (direction == 'L') {
+				futureTetramino.origin.col--;
+			} else if (direction == 'D') {
+				futureTetramino.origin.row++;
+			}
 			
-			spawnTetramino();
+			var legality = moveLegality(futureTetramino);
+			console.log("Moving active Tetramino " + direction + " legality is " + legality);
+			
+			if (legality == legal) {
+				// Apply the move
+				activeTetramino.origin = futureTetramino.origin;
+			} else if (legality == not_legal_continue) {
+				// Do nothing
+			} else if (legality == not_legal_end) {
+				// Need to add current tetramino to the grid then create a new one
+				applyTetraminoToBoard();
+				spawnTetramino();
+			}
+			
+			render();
 		}
-		
-		render();
 	}
 	
 	// Return a new grid which is the current grid plus the active Tetramino
@@ -151,11 +153,11 @@ function Game() {
 	}
 	
 	return {
-		stopStart: this.stopStart,
+		playPause: this.playPause,
 		left: this.left,
 		right: this.right,
 		down: this.down
-	};
+	}
 }
 
 var game = new Game();

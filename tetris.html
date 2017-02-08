@@ -3,6 +3,8 @@
 <head>
 	<title>Tetris</title>
 	<link rel="stylesheet" type="text/css" href="tetris.css">
+	<script src="https://use.fontawesome.com/2ac2053023.js"></script>
+	
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
 	<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react.min.js"></script>
@@ -29,14 +31,13 @@
 		</div>
 	</div>
 	<br>
-	<button onClick="game.stopStart()">Start/Stop</button>
-	<button onClick="game.left()"><-</button>
-	<button onClick="game.down()"> V </button>
-	<button onClick="game.right()">-></button>
+	<button onClick="game.playPause()"> <i class="fa fa-pause" aria-hidden="true"></i> <i class="fa fa-play" aria-hidden="true"></i> </button>
+	<button onClick="game.left()"> <i class="fa fa-arrow-left" aria-hidden="true"></i> </button>
+	<button onClick="game.down()"> <i class="fa fa-arrow-down" aria-hidden="true"></i> </button>
+	<button onClick="game.right()"> <i class="fa fa-arrow-right" aria-hidden="true"></i> </button>
 
 	<script type="text/jsx" src="tetraminos.js"></script>
 	<script type="text/jsx" src="view.js"></script>
 	<script type="text/jsx" src="game.js"></script>
-	
 </body>
 </html>
