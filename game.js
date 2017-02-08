@@ -13,6 +13,10 @@ const legal = 'legal';
 const not_legal_continue = 'not_legal_continue';
 const not_legal_end = 'not_legal_end';
 
+const down = 'D';
+const left = 'L';
+const right = 'R';
+
 var clone = function(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
@@ -59,6 +63,18 @@ function Game() {
 		playing = true;
 	}
 	
+	// Rotate active Tetramino 90 degrees CW
+	this.rotate = function() {
+		activeTetramino.type.blocks.map(block => {
+			var blockRow = block.row;
+			
+			block.row = block.col;
+			block.col = -blockRow;
+			}
+		)
+		render();
+	}
+	
 	// Down is same as fall() but resets the fall timer
 	this.down = function() {
 		if (playing) {
@@ -71,31 +87,32 @@ function Game() {
 	}
 	
 	var fall = function() {
-		move('D');
+		move(down);
 	}
 	
 	this.left = function() {
-		move('L');
+		move(left);
 	}
 
 	this.right = function() {
-		move('R');
+		move(right);
 	}
 	
-	// Check to see if the move is legal and modify the active tetramino accordingly
+	// Move the active tetramino
 	var move = function(direction) {
 		if (playing) {
 			var futureTetramino = clone(activeTetramino);
 			
-			if (direction == 'R') {
+			if (direction == right) {
 				futureTetramino.origin.col++;
-			} else if (direction == 'L') {
+			} else if (direction == left) {
 				futureTetramino.origin.col--;
-			} else if (direction == 'D') {
+			} else if (direction == down) {
 				futureTetramino.origin.row++;
 			}
 			
-			var legality = moveLegality(futureTetramino);
+			// Check legality of move
+			var legality = moveLegality(futureTetramino, direction);
 			console.log("Moving active Tetramino " + direction + " legality is " + legality);
 			
 			if (legality == legal) {
@@ -124,16 +141,28 @@ function Game() {
 	}
 	
 	// Determine if the given Tetramino is in a legal position
-	var moveLegality = function(tetramino) {
+	var moveLegality = function(futureTetramino, direction) {
 		var legality = legal;
+		var end = false;
 		
-		tetramino.type.blocks.map(block => {
-			if (block.row + tetramino.origin.row >= gameGrid.length) { // Reached bottom of grid
+		futureTetramino.type.blocks.map(block => {
+			if (block.row + futureTetramino.origin.row >= gameGrid.length) { // Reached bottom of grid
 				legality = not_legal_end;
-			} else if (block.col + tetramino.origin.col >= gameGrid[0].length || block.col + tetramino.origin.col < 0) { // Passed side of grid
+			} else if (block.col + futureTetramino.origin.col >= gameGrid[0].length || block.col + futureTetramino.origin.col < 0) { // Passed side of grid
 				legality = not_legal_continue;
+			} else if (gameGrid[block.row + futureTetramino.origin.row][block.col + futureTetramino.origin.col] != null) { // Hit another block
+				if (direction == down) { // if moving down, end
+					legality = not_legal_end;
+					end = true; // If even one block is under us when moving down, raise flag
+				} else {
+					legality = not_legal_continue; // else, continue
+				}
 			}
 		});
+		
+		if (end) {
+			legality = not_legal_end;
+		}
 		
 		return legality;
 	}
@@ -156,8 +185,40 @@ function Game() {
 		playPause: this.playPause,
 		left: this.left,
 		right: this.right,
-		down: this.down
+		down: this.down,
+		rotate: this.rotate
 	}
 }
 
 var game = new Game();
+
+var alertKey = function(event) {
+	var x = event.which;
+	console.log("The Unicode value is: " + x);
+}
+
+const arrowUp = 38;
+const arrowDown = 40;
+const arrowLeft = 37;
+const arrowRight = 39;
+const spaceBar = 32;
+
+document.onkeydown = function registerKeyboardCommands() {
+	switch (event.keyCode) {
+		case arrowUp:
+			game.rotate();
+			break;
+		case arrowDown:
+			game.down();
+			break;
+		case arrowLeft:
+			game.left();
+			break;
+		case arrowRight:
+			game.right();
+			break;
+		case spaceBar:
+			game.playPause();
+			break;
+	}
+}

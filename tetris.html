@@ -9,15 +9,12 @@
 	<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react.min.js"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/react/15.3.1/react-dom.min.js"></script>
-	
 </head>
-
 <body>
 	<h1></h1>
 	<div class="game">
 		<div class="gameInfoContainer">
 			<div class="nextBlock">
-				
 			</div>
 			Next
 			<div class="gameStats">
@@ -26,7 +23,6 @@
 		</div><div class="gameContainer">
 			<!-- Officially, field should be 10 wide and 22 high with the top 2 rows hidden -->
 			<table id="board">
-
 			</table>
 		</div>
 	</div>
@@ -35,6 +31,7 @@
 	<button onClick="game.left()"> <i class="fa fa-arrow-left" aria-hidden="true"></i> </button>
 	<button onClick="game.down()"> <i class="fa fa-arrow-down" aria-hidden="true"></i> </button>
 	<button onClick="game.right()"> <i class="fa fa-arrow-right" aria-hidden="true"></i> </button>
+	<button onClick="game.rotate()"> <i class="fa fa-refresh" aria-hidden="true"></i> </button>
 
 	<script type="text/jsx" src="tetraminos.js"></script>
 	<script type="text/jsx" src="view.js"></script>

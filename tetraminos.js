@@ -3,20 +3,20 @@ const color_O = "yellow", color_L = "orange", color_J = "blue", color_T = "purpl
 const tetramino_I = {
 	color: color_I,
 	blocks: [
-		{row: -1, col: 0},
-		{row: 0, col: 0},
-		{row: 1, col: 0},
-		{row: 2, col: 0},
+		{col: 0, row: -1},
+		{col: 0, row: 0},
+		{col: 0, row: 1},
+		{col: 0, row: 2},
 	]
 }
 
 const tetramino_L = {
 	color: color_L,
 	blocks: [
-		{row: -1, col: 0},
-		{row: 0, col: 0},
-		{row: 1, col: 0},
-		{row: 1, col: 1},
+		{col: 0, row: -1},
+		{col: 0, row: 0},
+		{col: 0, row: 1},
+		{col: 1, row: 1},
 	]
 }
 
