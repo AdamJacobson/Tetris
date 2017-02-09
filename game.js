@@ -26,6 +26,7 @@ function Game() {
 	var fallInterval;
 	var playing = false;
 	var activeTetramino;
+	var score = 0;
 	
 	var gameGrid = makeGrid(10, 20);
 	
@@ -33,7 +34,7 @@ function Game() {
 	var spawnTetramino = function() {
 		activeTetramino = {
 			type: getRandomTetramino(),
-			origin: {row: 3, col: 3},
+			origin: {row: 2, col: 5},
 		}
 	}
 	
@@ -49,6 +50,33 @@ function Game() {
 		} else {
 			play();
 		}
+	}
+	
+	// Check for completed rows and clear them. Then update score
+	var clearRows = function() {
+		for (var rowIndex = 0; rowIndex < gameGrid.length; rowIndex++) {
+			if (rowIsComplete(rowIndex)) {
+				console.log("row # ", rowIndex, " is completed.");
+				deleteRow(rowIndex);
+			}
+		}
+	}
+	
+	// Delete a row from the game grid and shift rows down
+	var deleteRow = function(rowIndex) {
+		while (rowIndex > 0) {
+			gameGrid[rowIndex] = gameGrid[--rowIndex];
+		}
+	}
+	
+	// Return true if row has no empty spaces
+	var rowIsComplete = function(rowIndex) {
+		for (var i = 0; i < gameGrid[0].length; i++) {
+			if (!gameGrid[rowIndex][i]) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	var pause = function() {
@@ -126,6 +154,7 @@ function Game() {
 				spawnTetramino();
 			}
 			
+			clearRows();
 			render();
 		}
 	}
