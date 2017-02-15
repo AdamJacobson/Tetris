@@ -8,7 +8,7 @@ body {
 	height: 400px;
 }
 
-.gameInfoContainer {
+#gameInfoContainer {
 	vertical-align: top;
 	background-color: cornflowerblue;
 	width: 100px;

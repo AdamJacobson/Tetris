@@ -32,6 +32,7 @@ const tetramino_J = {
 
 const tetramino_O = {
 	color: color_O,
+	can_rotate: false,
 	blocks: [
 		{row: 0, col: 0},
 		{row: 0, col: 1},
@@ -71,6 +72,7 @@ const tetramino_Z = {
 }
 
 const tetraminos = [tetramino_I, tetramino_J, tetramino_L, tetramino_O, tetramino_S, tetramino_T, tetramino_Z];
+// const tetraminos = [tetramino_J];
 
 var getRandomTetramino = function() {
 	return tetraminos[Math.floor(Math.random() * tetraminos.length)];

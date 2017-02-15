@@ -22,3 +22,22 @@ class Board extends React.Component {
 		)
 	}
 }
+
+class GameInfo extends React.Component {
+	constructor(props) {
+		super(props);
+	}
+	
+	render() {
+		return(
+			<div class="gameInfoContainer">
+				<div className="nextBlock">
+				</div>
+				Next
+				<div className="gameStats">
+					Score: {this.props.score}
+				</div>
+			</div>
+		)
+	}
+}

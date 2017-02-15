@@ -22,13 +22,17 @@ var clone = function(obj) {
 }
 
 function Game() {
+	var gridWidth = 10;
+	var gridHeight = 20;
+	var scorePerRow = 100;
+	
 	var fallTime = 1000;
 	var fallInterval;
 	var playing = false;
 	var activeTetramino;
 	var score = 0;
 	
-	var gameGrid = makeGrid(10, 20);
+	var gameGrid = makeGrid(gridWidth, gridHeight);
 	
 	// Create a random Tetramino at a spawn point and set it to active
 	var spawnTetramino = function() {
@@ -52,21 +56,40 @@ function Game() {
 		}
 	}
 	
-	// Check for completed rows and clear them. Then update score
+	// Clear completed rows and update score
 	var clearRows = function() {
-		for (var rowIndex = 0; rowIndex < gameGrid.length; rowIndex++) {
+		for (var rowIndex = gameGrid.length - 1; rowIndex >= 0; rowIndex--) {
 			if (rowIsComplete(rowIndex)) {
 				console.log("row # ", rowIndex, " is completed.");
-				deleteRow(rowIndex);
+				markRowComplete(rowIndex);
+				score += scorePerRow;
+				console.log("Score: " + score);
 			}
 		}
+		clearCompletedRows();
 	}
 	
-	// Delete a row from the game grid and shift rows down
-	var deleteRow = function(rowIndex) {
-		while (rowIndex > 0) {
-			gameGrid[rowIndex] = gameGrid[--rowIndex];
+	const complete = "complete";
+	
+	var markRowComplete = function(rowIndex) {
+		gameGrid[rowIndex][0] = complete;
+	}
+	
+	var clearCompletedRows = function() {
+		var newGrid = makeGrid(gridWidth, gridHeight);
+		var currentRow = gameGrid.length - 1;
+		
+		// For all rows in the original grid
+		for (var rowIndex = gameGrid.length - 1; rowIndex >= 0 ; rowIndex--) {
+			// If marked as complete
+			if (gameGrid[rowIndex][0] !== complete) {
+				// clone row to new grid using separate counter
+				newGrid[currentRow] = clone(gameGrid[rowIndex]);
+				currentRow--;
+			}
 		}
+		
+		gameGrid = clone(newGrid);
 	}
 	
 	// Return true if row has no empty spaces
@@ -151,10 +174,10 @@ function Game() {
 			} else if (legality == not_legal_end) {
 				// Need to add current tetramino to the grid then create a new one
 				applyTetraminoToBoard();
+				clearRows();
 				spawnTetramino();
 			}
 			
-			clearRows();
 			render();
 		}
 	}
@@ -199,14 +222,31 @@ function Game() {
 	// Apply the active Tetramino in the current board
 	// This will 'fix' the block colors to the board at their current position
 	var applyTetraminoToBoard = function() {
-		activeTetramino.type.blocks.map(block =>
-			gameGrid[block.row + activeTetramino.origin.row][block.col + activeTetramino.origin.col] = activeTetramino.type.color);
+		console.warn("Before adding Tetramino: \n" + JSON.stringify(gameGrid));
+		
+		// Don't need map() here. Should use forEach or for loop
+		activeTetramino.type.blocks.map(block => {
+			updateGridColor(block.row + activeTetramino.origin.row, block.col + activeTetramino.origin.col, activeTetramino.type.color);
+			console.error("While adding Tetramino: \n" + JSON.stringify(gameGrid));
+		});
+		
+		console.warn("After adding Tetramino: \n" + JSON.stringify(gameGrid));
+	}
+	
+	var updateGridColor = function(row, col, color) {
+		console.log("Updating gameGrid[" + row + "][" + col + "] = " + color);
+		gameGrid[row][col] = color;
 	}
 	
 	var render = function() {
 		ReactDOM.render(
 			<Board grid={calculateBoard()} />,
 			document.getElementById("board")
+		)
+		
+		ReactDOM.render(
+			<GameInfo score={score} />,
+			document.getElementById("gameInfoContainer")
 		)
 	}
 	
@@ -221,15 +261,10 @@ function Game() {
 
 var game = new Game();
 
-var alertKey = function(event) {
-	var x = event.which;
-	console.log("The Unicode value is: " + x);
-}
-
-const arrowUp = 38;
 const arrowDown = 40;
-const arrowLeft = 37;
 const arrowRight = 39;
+const arrowUp = 38;
+const arrowLeft = 37;
 const spaceBar = 32;
 
 document.onkeydown = function registerKeyboardCommands() {
