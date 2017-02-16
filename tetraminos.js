@@ -72,4 +72,22 @@ const tetramino_Z = {
 }
 
 const tetraminos = [tetramino_I, tetramino_J, tetramino_L, tetramino_O, tetramino_S, tetramino_T, tetramino_Z];
-// const tetraminos = [tetramino_J];
+
+// Fisher-Yates shuffle
+function shuffleTetraminos() {
+	var array = clone(tetraminos);
+	var m = array.length, t, i;
+
+	// While there remain elements to shuffle…
+	while (m) {
+		// Pick a remaining element…
+		i = Math.floor(Math.random() * m--);
+
+		// And swap it with the current element.
+		t = array[m];
+		array[m] = array[i];
+		array[i] = t;
+	}
+
+	return array;
+}

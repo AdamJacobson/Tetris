@@ -13,6 +13,13 @@ var clone = function(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
 
+var enableLogging = false;
+var log = function(message) {
+	if (enableLogging) {
+		console.log(message);
+	}
+}
+
 function Game() {
 	var gridWidth = 10;
 	var gridHeight = 20;
@@ -38,10 +45,20 @@ function Game() {
 	// Create a random Tetramino at a spawn point and set it to active
 	var spawnTetramino = function() {
 		activeTetramino = {
-			type: getRandomTetramino(),
+			type: getNextTetramino(),
 			origin: {row: 2, col: 5},
 		}
 	}
+	
+	var nextTetraminos = [];
+	var getNextTetramino = function() {
+		if (nextTetraminos.length == 0) {
+			nextTetraminos = shuffleTetraminos();
+		}
+		
+		return nextTetraminos.pop();
+	}
+	
 	
 	var getRandomTetramino = function() {
 		return tetraminos[Math.floor(Math.random() * tetraminos.length)];
@@ -61,10 +78,10 @@ function Game() {
 	var clearRows = function() {
 		for (var rowIndex = gameGrid.length - 1; rowIndex >= 0; rowIndex--) {
 			if (rowIsComplete(rowIndex)) {
-				console.log("row # ", rowIndex, " is completed.");
+				log("row # ", rowIndex, " is completed.");
 				markRowComplete(rowIndex);
 				score += scorePerRow;
-				console.log("Score: " + score);
+				log("Score: " + score);
 			}
 		}
 		clearCompletedRows();
@@ -172,7 +189,7 @@ function Game() {
 			
 			// Check legality of move
 			var legality = moveLegality(futureTetramino, direction);
-			console.log("Moving active Tetramino " + direction + " legality is " + legality);
+			log("Moving active Tetramino " + direction + " legality is " + legality);
 			
 			if (legality == legal) {
 				// Apply the move
@@ -230,19 +247,19 @@ function Game() {
 	// Apply the active Tetramino in the current board
 	// This will 'fix' the block colors to the board at their current position
 	var applyTetraminoToBoard = function() {
-		console.warn("Before adding Tetramino: \n" + JSON.stringify(gameGrid));
+		log("Before adding Tetramino: \n" + JSON.stringify(gameGrid));
 		
 		// Don't need map() here. Should use forEach or for loop
 		activeTetramino.type.blocks.map(block => {
 			updateGridColor(block.row + activeTetramino.origin.row, block.col + activeTetramino.origin.col, activeTetramino.type.color);
-			console.error("While adding Tetramino: \n" + JSON.stringify(gameGrid));
+			log("While adding Tetramino: \n" + JSON.stringify(gameGrid));
 		});
 		
-		console.warn("After adding Tetramino: \n" + JSON.stringify(gameGrid));
+		log("After adding Tetramino: \n" + JSON.stringify(gameGrid));
 	}
 	
 	var updateGridColor = function(row, col, color) {
-		console.log("Updating gameGrid[" + row + "][" + col + "] = " + color);
+		log("Updating gameGrid[" + row + "][" + col + "] = " + color);
 		gameGrid[row][col] = color;
 	}
 	
