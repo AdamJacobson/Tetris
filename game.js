@@ -9,14 +9,6 @@ var makeGrid = function(width, height) {
 	return grid;
 }
 
-const legal = 'legal';
-const not_legal_continue = 'not_legal_continue';
-const not_legal_end = 'not_legal_end';
-
-const down = 'D';
-const left = 'L';
-const right = 'R';
-
 var clone = function(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
@@ -27,13 +19,22 @@ function Game() {
 	var scorePerRow = 100;
 	
 	var fallTime = 1000;
-	var fallInterval;
 	var playing = false;
-	var activeTetramino;
 	var score = 0;
+	
+	var fallInterval;
+	var activeTetramino;
 	
 	var gameGrid = makeGrid(gridWidth, gridHeight);
 	
+	const down = 'D';
+	const left = 'L';
+	const right = 'R';
+
+	const legal = 'legal';
+	const not_legal_continue = 'not_legal_continue';
+	const not_legal_end = 'not_legal_end';
+
 	// Create a random Tetramino at a spawn point and set it to active
 	var spawnTetramino = function() {
 		activeTetramino = {
@@ -114,16 +115,23 @@ function Game() {
 		playing = true;
 	}
 	
+	var getRandomTetramino = function() {
+		return tetraminos[Math.floor(Math.random() * tetraminos.length)];
+	}
+	
 	// Rotate active Tetramino 90 degrees CW
+	// TODO - Need to make rotation conditional on legality. Should push away from walls when possible
 	this.rotate = function() {
-		activeTetramino.type.blocks.map(block => {
-			var blockRow = block.row;
-			
-			block.row = block.col;
-			block.col = -blockRow;
-			}
-		)
-		render();
+		if (activeTetramino.type.canRotate != false || activeTetramino.type.canRotate == undefined) {
+			activeTetramino.type.blocks.map(block => {
+				var blockRow = block.row;
+				
+				block.row = block.col;
+				block.col = -blockRow;
+				}
+			)
+			render();
+		}
 	}
 	
 	// Down is same as fall() but resets the fall timer
