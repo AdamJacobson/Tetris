@@ -32,7 +32,7 @@ const tetramino_J = {
 
 const tetramino_O = {
 	color: color_O,
-	canRotate: false,
+	cantRotate: true,
 	blocks: [
 		{row: 0, col: 0},
 		{row: 0, col: -1},

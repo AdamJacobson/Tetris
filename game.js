@@ -34,9 +34,10 @@ function Game() {
 	
 	var gameGrid = makeGrid(gridWidth, gridHeight);
 	
-	const down = 'D';
-	const left = 'L';
-	const right = 'R';
+	const MOVE_DOWN = 'move_down';
+	const MOVE_LEFT = 'move_left';
+	const MOVE_RIGHT = 'move_right';
+	const ROTATE = 'rotate';
 
 	const legal = 'legal';
 	const not_legal_continue = 'not_legal_continue';
@@ -139,15 +140,18 @@ function Game() {
 	// Rotate active Tetramino 90 degrees CW
 	// TODO - Need to make rotation conditional on legality. Should push away from walls when possible
 	this.rotate = function() {
-		if (activeTetramino.type.canRotate != false || activeTetramino.type.canRotate == undefined) {
-			activeTetramino.type.blocks.map(block => {
-				var blockRow = block.row;
-				
-				block.row = block.col;
-				block.col = -blockRow;
-				}
-			)
-			render();
+		if (playing) {
+			if (!activeTetramino.type.cantRotate) {
+				move(ROTATE);
+
+			// 		activeTetramino.type.blocks.map(block => {
+			// 		var blockRow = block.row;
+			// 		block.row = block.col;
+			// 		block.col = -blockRow;
+			// 	}
+			// )
+			// render();
+			}
 		}
 	}
 	
@@ -163,37 +167,52 @@ function Game() {
 	}
 	
 	var fall = function() {
-		move(down);
+		move(MOVE_DOWN);
 	}
 	
 	this.left = function() {
-		move(left);
+		move(MOVE_LEFT);
 	}
 
 	this.right = function() {
-		move(right);
+		move(MOVE_RIGHT);
 	}
 	
 	// Move the active tetramino
-	var move = function(direction) {
+	var move = function(action) {
 		if (playing) {
 			var futureTetramino = clone(activeTetramino);
 			
-			if (direction == right) {
+			if (action == MOVE_RIGHT) {
 				futureTetramino.origin.col++;
-			} else if (direction == left) {
+			} else if (action == MOVE_LEFT) {
 				futureTetramino.origin.col--;
-			} else if (direction == down) {
+			} else if (action == MOVE_DOWN) {
 				futureTetramino.origin.row++;
+			} else if (action == ROTATE) {
+				futureTetramino.type.blocks.map(block => {
+					var blockRow = block.row;
+					
+					block.row = block.col;
+					block.col = -blockRow;
+				});
+
+				log(futureTetramino);
 			}
 			
 			// Check legality of move
-			var legality = moveLegality(futureTetramino, direction);
-			log("Moving active Tetramino " + direction + " legality is " + legality);
+			var legality = moveLegality(futureTetramino, action);
+			log("Moving active Tetramino " + action + " legality is " + legality);
 			
 			if (legality == legal) {
 				// Apply the move
 				activeTetramino.origin = futureTetramino.origin;
+
+				// Apply blocks if rotating
+				if (action == ROTATE) {
+					log(futureTetramino.blocks);
+					activeTetramino.type.blocks = futureTetramino.type.blocks;
+				}
 			} else if (legality == not_legal_continue) {
 				// Do nothing
 			} else if (legality == not_legal_end) {
@@ -207,18 +226,8 @@ function Game() {
 		}
 	}
 	
-	// Return a new grid which is the current grid plus the active Tetramino
-	var calculateBoard = function() {
-		var newGrid = clone(gameGrid);
-		
-		activeTetramino.type.blocks.map(block =>
-			newGrid[block.row + activeTetramino.origin.row][block.col + activeTetramino.origin.col] = activeTetramino.type.color);
-		
-		return newGrid;
-	}
-	
 	// Determine if the given Tetramino is in a legal position
-	var moveLegality = function(futureTetramino, direction) {
+	var moveLegality = function(futureTetramino, action) {
 		var legality = legal;
 		var end = false;
 		
@@ -228,7 +237,7 @@ function Game() {
 			} else if (block.col + futureTetramino.origin.col >= gameGrid[0].length || block.col + futureTetramino.origin.col < 0) { // Passed side of grid
 				legality = not_legal_continue;
 			} else if (gameGrid[block.row + futureTetramino.origin.row][block.col + futureTetramino.origin.col] != null) { // Hit another block
-				if (direction == down) { // if moving down, end
+				if (action == MOVE_DOWN) { // if moving down, end
 					legality = not_legal_end;
 					end = true; // If even one block is under us when moving down, raise flag
 				} else {
@@ -242,6 +251,16 @@ function Game() {
 		}
 		
 		return legality;
+	}
+
+	// Return a new grid which is the current grid plus the active Tetramino
+	var calculateBoard = function() {
+		var newGrid = clone(gameGrid);
+		
+		activeTetramino.type.blocks.map(block =>
+			newGrid[block.row + activeTetramino.origin.row][block.col + activeTetramino.origin.col] = activeTetramino.type.color);
+		
+		return newGrid;
 	}
 	
 	// Apply the active Tetramino in the current board
@@ -310,4 +329,8 @@ document.onkeydown = function registerKeyboardCommands() {
 			game.playPause();
 			break;
 	}
+}
+
+window.onload = function() {
+	game.playPause();
 }
