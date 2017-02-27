@@ -13,7 +13,7 @@ var clone = function(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
 
-var enableLogging = false;
+var enableLogging = true;
 var log = function(message) {
 	if (enableLogging) {
 		console.log(message);
@@ -52,6 +52,7 @@ function Game() {
 	}
 	
 	var nextTetraminos = [];
+	// Get next tetramino from shuffled array of possibles. Reshuffle when run out
 	var getNextTetramino = function() {
 		if (nextTetraminos.length == 0) {
 			nextTetraminos = shuffleTetraminos();
@@ -59,14 +60,19 @@ function Game() {
 		
 		return nextTetraminos.pop();
 	}
-	
-	
-	var getRandomTetramino = function() {
-		return tetraminos[Math.floor(Math.random() * tetraminos.length)];
+
+	// see the next tetramino without actually taking it
+	var previewNextTetramino = function() {
+		if (nextTetraminos.length == 0) {
+			nextTetraminos = shuffleTetraminos();
+		}
+
+		return nextTetraminos[nextTetraminos.length - 1];
 	}
 	
 	spawnTetramino();
 	
+	// Pause or play the game
 	this.playPause = function() {
 		if (playing) {
 			pause();
@@ -133,24 +139,12 @@ function Game() {
 		playing = true;
 	}
 	
-	var getRandomTetramino = function() {
-		return tetraminos[Math.floor(Math.random() * tetraminos.length)];
-	}
-	
 	// Rotate active Tetramino 90 degrees CW
 	// TODO - Need to make rotation conditional on legality. Should push away from walls when possible
 	this.rotate = function() {
 		if (playing) {
 			if (!activeTetramino.type.cantRotate) {
 				move(ROTATE);
-
-			// 		activeTetramino.type.blocks.map(block => {
-			// 		var blockRow = block.row;
-			// 		block.row = block.col;
-			// 		block.col = -blockRow;
-			// 	}
-			// )
-			// render();
 			}
 		}
 	}
@@ -289,7 +283,7 @@ function Game() {
 		)
 		
 		ReactDOM.render(
-			<GameInfo score={score} />,
+			<GameInfo score={score} nextTetramino={previewNextTetramino()} />,
 			document.getElementById("gameInfoContainer")
 		)
 	}
