@@ -27,14 +27,13 @@ function Game() {
 	
 	var fallTime = 1000;
 	var playing = false;
-	var score = 0;
+	var score;
 	
 	var fallInterval;
 	var activeTetramino;
 
-	var gameOver = false;
-	
-	var gameGrid = makeGrid(gridWidth, gridHeight);
+	var gameOver;
+	var gameGrid;
 	
 	const MOVE_DOWN = 'move_down';
 	const MOVE_LEFT = 'move_left';
@@ -44,6 +43,18 @@ function Game() {
 	const legal = 'legal';
 	const not_legal_continue = 'not_legal_continue';
 	const not_legal_end = 'not_legal_end';
+	
+	// Start the game. Initialize variables
+	this.startGame = function() {
+		clearInterval(fallInterval);
+		log("Starting game");
+		score = 0;
+		gameGrid = makeGrid(gridWidth, gridHeight);
+		gameOver = false;
+		spawnTetramino();
+		hideGameOverScreen();
+		play();
+	}
 
 	// Create a random Tetramino at a spawn point and set it to active
 	var spawnTetramino = function() {
@@ -55,17 +66,26 @@ function Game() {
 		// check for game over
 		activeTetramino.type.blocks.map(block => {
 			if (gameGrid[block.row + activeTetramino.origin.row][block.col + activeTetramino.origin.col]) {				
-				gameOver();
+				endGame();
 			}
 		});
 	}
 
-	var gameOver = function() {
+	var endGame = function() {
+		log("Game Over!");
 		gameOver = true;
 		pause();
-
+		showGameOverScreen();
+	}
+	
+	var showGameOverScreen = function() {
 		var mask = document.getElementById("mask");
 		mask.classList.remove("hide");
+	}
+	
+	var hideGameOverScreen = function() {
+		var mask = document.getElementById("mask");
+		mask.classList.add("hide");
 	}
 
 	var nextTetraminos = [];
@@ -87,13 +107,13 @@ function Game() {
 		return nextTetraminos[nextTetraminos.length - 1];
 	}
 	
-	spawnTetramino();
-	
 	// Pause or play the game
 	this.playPause = function() {
 		if (playing) {
+			log("pause");
 			pause();
 		} else {
+			log("play");
 			play();
 		}
 	}
@@ -191,6 +211,7 @@ function Game() {
 	
 	// Move the active tetramino
 	var move = function(action) {
+		log("game over? " + gameOver)
 		if (playing && !gameOver) {
 			var futureTetramino = clone(activeTetramino);
 			
@@ -277,15 +298,10 @@ function Game() {
 	// Apply the active Tetramino in the current board
 	// This will 'fix' the block colors to the board at their current position
 	var applyTetraminoToBoard = function() {
-		// log("Before adding Tetramino: \n" + JSON.stringify(gameGrid));
-		
 		// Don't need map() here. Should use forEach or for loop
 		activeTetramino.type.blocks.map(block => {
 			updateGridColor(block.row + activeTetramino.origin.row, block.col + activeTetramino.origin.col, activeTetramino.type.color);
-			// log("While adding Tetramino: \n" + JSON.stringify(gameGrid));
 		});
-		
-		// log("After adding Tetramino: \n" + JSON.stringify(gameGrid));
 	}
 	
 	var updateGridColor = function(row, col, color) {
@@ -310,38 +326,14 @@ function Game() {
 		left: this.left,
 		right: this.right,
 		down: this.down,
-		rotate: this.rotate
+		rotate: this.rotate,
+		startGame: this.startGame
 	}
 }
 
 var game = new Game();
 
-const arrowDown = 40;
-const arrowRight = 39;
-const arrowUp = 38;
-const arrowLeft = 37;
-const spaceBar = 32;
-
-document.onkeydown = function registerKeyboardCommands() {
-	switch (event.keyCode) {
-		case arrowUp:
-			game.rotate();
-			break;
-		case arrowDown:
-			game.down();
-			break;
-		case arrowLeft:
-			game.left();
-			break;
-		case arrowRight:
-			game.right();
-			break;
-		case spaceBar:
-			game.playPause();
-			break;
-	}
-}
-
 window.onload = function() {
-	game.playPause();
+	log("page load");
+	game.startGame();
 }

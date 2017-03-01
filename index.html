@@ -13,7 +13,7 @@
 <body>
 	<div id="mask" class="hide">
 		<h1>Game Over!</h1>
-		<button>Play Again</button>
+		<button onClick="game.startGame()">Play Again</button>
 	</div>
 
 	<h1>Tetris with React</h1>
@@ -30,9 +30,11 @@
 	<button onClick="game.down()"> <i class="fa fa-arrow-down" aria-hidden="true"></i> </button>
 	<button onClick="game.right()"> <i class="fa fa-arrow-right" aria-hidden="true"></i> </button>
 	<button onClick="game.rotate()"> <i class="fa fa-repeat" aria-hidden="true"></i> </button>
+	<button onClick="game.startGame()"> <i class="fa fa-play-circle" aria-hidden="true"></i> </button>
 
 	<script type="text/jsx" src="tetraminos.js"></script>
 	<script type="text/jsx" src="view.js"></script>
 	<script type="text/jsx" src="game.js"></script>
+	<script type="text/jsx" src="controls.js"></script>
 </body>
 </html>
