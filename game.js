@@ -31,6 +31,8 @@ function Game() {
 	
 	var fallInterval;
 	var activeTetramino;
+
+	var gameOver = false;
 	
 	var gameGrid = makeGrid(gridWidth, gridHeight);
 	
@@ -47,10 +49,25 @@ function Game() {
 	var spawnTetramino = function() {
 		activeTetramino = {
 			type: getNextTetramino(),
-			origin: {row: 2, col: 5},
+			origin: {row: 0, col: Math.floor(gridWidth / 2)},
 		}
+
+		// check for game over
+		activeTetramino.type.blocks.map(block => {
+			if (gameGrid[block.row + activeTetramino.origin.row][block.col + activeTetramino.origin.col]) {				
+				gameOver();
+			}
+		});
 	}
-	
+
+	var gameOver = function() {
+		gameOver = true;
+		pause();
+
+		var mask = document.getElementById("mask");
+		mask.classList.remove("hide");
+	}
+
 	var nextTetraminos = [];
 	// Get next tetramino from shuffled array of possibles. Reshuffle when run out
 	var getNextTetramino = function() {
@@ -174,7 +191,7 @@ function Game() {
 	
 	// Move the active tetramino
 	var move = function(action) {
-		if (playing) {
+		if (playing && !gameOver) {
 			var futureTetramino = clone(activeTetramino);
 			
 			if (action == MOVE_RIGHT) {
@@ -260,15 +277,15 @@ function Game() {
 	// Apply the active Tetramino in the current board
 	// This will 'fix' the block colors to the board at their current position
 	var applyTetraminoToBoard = function() {
-		log("Before adding Tetramino: \n" + JSON.stringify(gameGrid));
+		// log("Before adding Tetramino: \n" + JSON.stringify(gameGrid));
 		
 		// Don't need map() here. Should use forEach or for loop
 		activeTetramino.type.blocks.map(block => {
 			updateGridColor(block.row + activeTetramino.origin.row, block.col + activeTetramino.origin.col, activeTetramino.type.color);
-			log("While adding Tetramino: \n" + JSON.stringify(gameGrid));
+			// log("While adding Tetramino: \n" + JSON.stringify(gameGrid));
 		});
 		
-		log("After adding Tetramino: \n" + JSON.stringify(gameGrid));
+		// log("After adding Tetramino: \n" + JSON.stringify(gameGrid));
 	}
 	
 	var updateGridColor = function(row, col, color) {
