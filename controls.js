@@ -4,8 +4,10 @@ const arrowUp = 38;
 const arrowLeft = 37;
 const spaceBar = 32;
 
-document.onkeydown = function registerKeyboardCommands() {
-	switch (event.keyCode) {
+document.addEventListener('keydown', function(event) {
+	event = event || window.event;
+
+	switch (event.which) {
 		case arrowUp:
 			game.rotate();
 			break;
@@ -22,4 +24,4 @@ document.onkeydown = function registerKeyboardCommands() {
 			game.playPause();
 			break;
 	}
-}
+});
